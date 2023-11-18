@@ -9,16 +9,25 @@ from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import TimeoutException
 import random
 import pandas as pd
 import os
 import time
 
 def get_date(date):
-    return datedate[-2:-1]+datedate[5:6]+datedate[2:3]
+    time = date.split('-')
+    day = time[2]
+    month = time[1]
+    year = time[0][-2:]
+    return day+month+year
+
 
 # Set the download directory path to project folder
 download_directory = "/Users/phucdang/Documents/dangnguyen/Document/DE/project/"
+
+
+max_page_load_timeout = 10
 
 # Set up Firefox options
 firefox_options = Options()
@@ -150,8 +159,13 @@ enter_elem[0].click()
 
 # then click "Tai xuong" :v
 download_elem = driver.find_elements(By.CSS_SELECTOR, '.download-data_csv-link__2ffbv')
-driver.get(download_elem[0].get_attribute('href'))
-driver.close()
+try:
+    driver.set_page_load_timeout(max_page_load_timeout)
+    driver.get(download_elem[0].get_attribute('href'))
+except TimeoutException:
+    print(f"Page load timed out after {max_page_load_timeout} seconds.")
+finally:
+    driver.quit()
 
 csv_files = [f for f in os.listdir(download_directory) if f.endswith(".csv")]
 
@@ -162,4 +176,5 @@ if csv_files:
 
     # Get the newest CSV file based on creation time
     newest_csv = max(csv_file_paths, key=os.path.getctime)
-    os.rename(newest_csv, download_directory + stock + '_' +get_date(startdate) + '_' +get_date(enddate))
+    os.rename(newest_csv, download_directory + stock + '_' + get_date(enddate) + '-' + get_date(startdate)+'.csv')
+
