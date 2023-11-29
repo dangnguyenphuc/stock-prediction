@@ -177,4 +177,3 @@ if csv_files:
     # Get the newest CSV file based on creation time
     newest_csv = max(csv_file_paths, key=os.path.getctime)
     os.rename(newest_csv, download_directory + stock + '_' + get_date(enddate) + '-' + get_date(startdate)+'.csv')
-
